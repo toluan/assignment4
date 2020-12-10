@@ -61,9 +61,12 @@ df_arbl_p_alder <- df_arbl_p_alder %>%
 
 ```{r, echo=FALSE}
 #endrer også navn fra df_arbl_p_alder til arblos_aldersgrp
-#arblos_aldersgrp <- 
-#rm(df_arbl_p_alder)
+arblos_aldersgrp <- data.frame(x = c('(15, 74)', '(15, 29)', '(30, 74)'))
+arblos_aldersgrp %>% separate(x, c('aar', 'mnd'))
+rm(df_arbl_p_alder)
 ```
+
+
 
 ### Fikse knavn
 

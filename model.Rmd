@@ -81,7 +81,10 @@ names(wf)
 Summer de ulike årskategoriene for de to kjønnene og menn+kvinner for å finne total befolkning de ulike årene. Bruk mutate til å lage de nye variablene.
 
 ```{r, echo=FALSE}
-# bef <- bef %>% 
+ bef <- bef %>% 
+  mutate(bef_K = bef_K_0_14 + bef_K_15_29 + bef_K_30_74 + bef_K_75_105,
+         bef_M = bef_M_0_14 + bef_M_15_29 + bef_M_30_74 + bef_M_75_105,
+         bef_KM = bef_K + bef_M)
 ```
 
 ```{r}
@@ -92,7 +95,19 @@ names(bef)
 Legg befolkningsdata varaiablene bef_K, bef_M, bef_KM til wf. Husk at de må aggregeres for hele landet (group_by() og så summarise() før de «joines»). Bruk tilslutt mutate() make_date() for å lage en ny variabel år som er en date, dvs aar + month=1L + day=1L.
 
 ```{r, echo=FALSE}
-# wf <- bef %>%
+wfhjelp <- bef %>%
+  group_by(aar) %>% 
+    summarise(
+        bef_K = sum(bef_K, na.rm = TRUE),
+        bef_M = sum(bef_M, na.rm = TRUE),
+        bef_KM = sum(bef_M, na.rm = TRUE)) 
+ 
+wf <- right_join(wf, wfhjelp, by = "aar")
+
+wf <- wf %>%
+  mutate(
+    år = make_date(year = aar, month = 1L, day = 1L)
+  )
 ```
 
 Da skal du få

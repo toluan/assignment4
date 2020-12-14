@@ -36,8 +36,7 @@ Vi bruker perioden januar 1999 t.o.m. mai 2014. Perioden har relativt få kommun
 ```{r, echo=FALSE}
 # combine med c(), rep() se argument each, str_pad()
 # til å lage 01, 02...11, 12
-tid_vec <- c(paste(rep(1999:2014, 1, each = 12), paste(c("M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"))))
-tid_vec <- str_replace_all(tid_vec, fixed(" "), "")
+tid_vec <- paste(rep(1999:2014, each = 12), "M", str_pad(1:12, width = 2, pad = "0"), sep = "")
 tid_vec <- tid_vec[1:185]
 ```
  
@@ -75,7 +74,6 @@ arbl_p_alder <- ApiData(
     Tid = tid_vec,
     Alder = alder_vec
   )
-
 df_arbl_p_alder <- data.frame(
     knr = arbl_p_alder[[2]]$Region,
     knavn = arbl_p_alder[[1]]$region,
@@ -107,7 +105,6 @@ df_arbl_p_kjonn <- data.frame (
 
     alp_k = arbl_p_kjonn[[2]]$value
 )
-dim(df_arbl_p_kjonn)
 ```
 
 ```{r}
@@ -126,8 +123,7 @@ arbl <- ApiData(
   10594,
   Region = kom_vec,
   Tid = tid_vec,
-  Kjonn = kjonn_vec
-)
+  Kjonn = kjonn_vec)
 
 df_arbl <- data.frame (
     knr = arbl[[2]]$Region,
@@ -197,20 +193,19 @@ Hent ned tilsvarende befolkningsdata for menn.
 
 ```{r, echo=FALSE}
 bef_M <- ApiData(
-  07459,
-  Region = kom_vec,
-  Tid = as.character(1999:2014),
-  Alder = alder_klasse_vec,
-  Kjonn = "Menn"
-)
+    07459,
+    Region = kom_vec,
+    Tid = as.character(1999:2014),
+    Alder = alder_klasse_vec,
+    Kjonn = "Menn")
 
 df_bef_M <- data.frame(
-  knr = bef_M[[2]]$Region, 
-  knavn = bef_M[[1]]$region,
-  tid = bef_M[[2]]$Tid,
-  
+    knr = bef_M[[2]]$Region,
+    knavn = bef_M[[1]]$region,
+    tid = bef_M[[2]]$Tid,
+    # Vil ha Kvinner, Menn ikke 2, 1 i bef_K[[2]]$Kjonn
     kjonn = bef_M[[1]]$kjønn,
-  
+    # velger alder som 000 001 etc
     alder = bef_M[[2]]$Alder,
     bef = bef_M[[2]]$value
 )

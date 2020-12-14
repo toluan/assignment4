@@ -82,7 +82,8 @@ Summer de ulike årskategoriene for de to kjønnene og menn+kvinner for å finne
 
 ```{r, echo=FALSE}
  bef <- bef %>% 
-  mutate(bef_K = bef_K_0_14 + bef_K_15_29 + bef_K_30_74 + bef_K_75_105,
+  mutate(
+    bef_K = bef_K_0_14 + bef_K_15_29 + bef_K_30_74 + bef_K_75_105,
          bef_M = bef_M_0_14 + bef_M_15_29 + bef_M_30_74 + bef_M_75_105,
          bef_KM = bef_K + bef_M)
 ```
@@ -95,19 +96,17 @@ names(bef)
 Legg befolkningsdata varaiablene bef_K, bef_M, bef_KM til wf. Husk at de må aggregeres for hele landet (group_by() og så summarise() før de «joines»). Bruk tilslutt mutate() make_date() for å lage en ny variabel år som er en date, dvs aar + month=1L + day=1L.
 
 ```{r, echo=FALSE}
-wfhjelp <- bef %>%
-  group_by(aar) %>% 
-    summarise(
-        bef_K = sum(bef_K, na.rm = TRUE),
-        bef_M = sum(bef_M, na.rm = TRUE),
-        bef_KM = sum(bef_M, na.rm = TRUE)) 
- 
-wf <- right_join(wf, wfhjelp, by = "aar")
-
+wf_hjelp <- bef %>%
+  group_by(aar) %>%
+  summarise(bef_K = sum(bef_K),
+            bef_M = sum(bef_M),
+            bef_KM = sum(bef_KM))
+wf <- left_join(wf, wf_hjelp) 
 wf <- wf %>%
-  mutate(
-    år = make_date(year = aar, month = 1L, day = 1L)
-  )
+  select(aar, bef_K, bef_M, bef_KM, wf_K, wf_M, wf_KM) %>% 
+  mutate(år = make_date(aar, month = 1L, day = 1L))
+
+rm(wf_hjelp)
 ```
 
 Da skal du få
@@ -121,14 +120,16 @@ Plot dataen vha. geom_line() for de tre kategoriene. Bruk år som x-variabel.
 ```{r, echo=FALSE}
 wf %>% 
     ggplot(wf, mapping = aes(x = år)) +
-  geom_line(mapping = aes(y = wf_K/bef_K, color = "red")) +
-  geom_line(mapping = aes(y = wf_M/bef_M, color = "blue")) +
+  geom_line(mapping = aes(y = wf_K/bef_K, color = "...")) +
+  geom_line(mapping = aes(y = wf_M/bef_M, color = "darkblue")) +
   geom_line(mapping = aes(y = wf_KM/bef_KM)) +
-  ggtitle("Arbeidsstyrke relativt til befolkningen. Menn blå, kvinner rød og totalt svart.") +
+  ggtitle("Arbeidsstyrke relativt til befolkning. Menn blå, kvinner rød og totalt svart.") +
   theme(legend.position = "none")
 ```
 
 Hvordan kan pukkelen rett før 2010 forklares?
+
+Det kan skyldes at verdensøkonomien gikk bra, og at det i 2008/2009 var en finanskrise i verden som påvirket økonomien og næringene. 
 
 ```{r}
 names(arblos)
@@ -160,7 +161,7 @@ Lag også en ny tibble bef_f fra bef som inneholder befolkningen i hvert fylke h
 
 ```{r, echo=FALSE}
 bef_f <- bef %>% 
-mutate(
+      mutate(
         fylke = substr(knr, start = 1, stop = 2)
     ) %>% 
     group_by(aar, fylke) %>% 
@@ -275,6 +276,8 @@ wf_r %>%
 ```
 
 Forlar kort den generelle utviklingen i arbeidsstyrken. Hva er det som «redder oss»?
+
+For kvinnene kan en se at det er en jevnt økende trend at flere kvinner fra arbeidsstyrken jobber. Det kan skyldes flere grunner, men en av dem kan være kampen for likestilling og at kvinnene skal aktivt delta i jobbmarkedene og ikke slik de gjorde før. En kan se at de har en liten utflating av kurven i 2007/2008 og den faller litt etter 2011. Den første utflatingen kan skyldes finanskrisen og det som førte med der, mens i 2011 kan det skyldes andre ting. En kan se at hos menn synker kurven i alle regionene, i noen regioner mer enn andre. Litt fargesvak, men tror det er Oslo som redder oss. Eventuelt Vestlandet. 
 
 ## `nest()` arblos
 
@@ -449,7 +452,7 @@ kom_str_mod %>%
     group_by(k_str) %>% 
     summarise(n = n())
 ```
-
+  
 ```{r}
 kom_str_mod %>% 
     filter(term == "alp_30_74") %>% 

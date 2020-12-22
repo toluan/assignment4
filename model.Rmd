@@ -80,12 +80,12 @@ names(wf)
 
 Summer de ulike årskategoriene for de to kjønnene og menn+kvinner for å finne total befolkning de ulike årene. Bruk mutate til å lage de nye variablene.
 
-```{r, echo=FALSE}
+```{r}
  bef <- bef %>% 
   mutate(
     bef_K = bef_K_0_14 + bef_K_15_29 + bef_K_30_74 + bef_K_75_105,
-         bef_M = bef_M_0_14 + bef_M_15_29 + bef_M_30_74 + bef_M_75_105,
-         bef_KM = bef_K + bef_M)
+    bef_M = bef_M_0_14 + bef_M_15_29 + bef_M_30_74 + bef_M_75_105,
+    bef_KM = bef_K + bef_M)
 ```
 
 ```{r}
@@ -95,18 +95,30 @@ names(bef)
 
 Legg befolkningsdata varaiablene bef_K, bef_M, bef_KM til wf. Husk at de må aggregeres for hele landet (group_by() og så summarise() før de «joines»). Bruk tilslutt mutate() make_date() for å lage en ny variabel år som er en date, dvs aar + month=1L + day=1L.
 
-```{r, echo=FALSE}
-wf_hjelp <- bef %>%
-  group_by(aar) %>%
-  summarise(bef_K = sum(bef_K),
-            bef_M = sum(bef_M),
-            bef_KM = sum(bef_KM))
-wf <- left_join(wf, wf_hjelp) 
-wf <- wf %>%
-  select(aar, bef_K, bef_M, bef_KM, wf_K, wf_M, wf_KM) %>% 
-  mutate(år = make_date(aar, month = 1L, day = 1L))
-
-rm(wf_hjelp)
+```{r}
+# wf_hjelp <- bef %>%
+#   group_by(aar) %>%
+#   summarise(bef_K = sum(bef_K),
+#             bef_M = sum(bef_M),
+#             bef_KM = sum(bef_KM))
+# wf <- left_join(wf, wf_hjelp) 
+# wf <- wf %>%
+#   select(aar, bef_K, bef_M, bef_KM, wf_K, wf_M, wf_KM) %>% 
+#   mutate(år = make_date(aar, month = 1L, day = 1L))
+# 
+# rm(wf_hjelp)
+wf <- bef %>% 
+select(aar, bef_K, bef_M, bef_KM) %>%
+        group_by(aar) %>%
+    summarise(
+        bef_K = sum(bef_K),
+        bef_M = sum(bef_M),
+        bef_KM = sum(bef_KM)
+    ) %>% 
+left_join(y = wf, by = c("aar")) %>% 
+    mutate(
+        år = make_date(year = aar, month = 1L, day = 1L)
+    )
 ```
 
 Da skal du få
@@ -117,12 +129,12 @@ wf
 Vi vil nå se på arbeidsstyrke relativt til befolkning på landsbasis, dvs. wf_K/bef_K etc.
 Plot dataen vha. geom_line() for de tre kategoriene. Bruk år som x-variabel.
 
-```{r, echo=FALSE}
+```{r}
 wf %>% 
     ggplot(wf, mapping = aes(x = år)) +
-  geom_line(mapping = aes(y = wf_K/bef_K, color = "...")) +
-  geom_line(mapping = aes(y = wf_M/bef_M, color = "darkblue")) +
-  geom_line(mapping = aes(y = wf_KM/bef_KM)) +
+  geom_line(mapping = aes(y = wf_K/bef_K), color = "red") +
+  geom_line(mapping = aes(y = wf_M/bef_M, color = "blue"), color = "darkblue") +
+  geom_line(mapping = aes(y = wf_KM/bef_KM), color = "black") +
   ggtitle("Arbeidsstyrke relativt til befolkning. Menn blå, kvinner rød og totalt svart.") +
   theme(legend.position = "none")
 ```
@@ -159,7 +171,7 @@ print(wf_f, n = 5)
 ```
 Lag også en ny tibble bef_f fra bef som inneholder befolkningen i hvert fylke hvert år.
 
-```{r, echo=FALSE}
+```{r}
 bef_f <- bef %>% 
       mutate(
         fylke = substr(knr, start = 1, stop = 2)
@@ -179,7 +191,7 @@ bef_f
 
 Lag til slutt tibble-en wf_f_bef som innholde arbeidsstyrke (wf-f) og befolkning (bef-f) på fylkesnivå for hvert år.
 
-```{r, echo=FALSE}
+```{r}
 wf_f_bef <- wf_f %>% 
   right_join(bef_f) %>%
   arrange(fylke, aar, mnd)
@@ -192,7 +204,7 @@ print(arrange(wf_f_bef, fylke, aar, mnd))
 ```
 Plot nå arbeidsstyrke relativt til befolkning vha. geom_line()
 
-```{r, echo=FALSE}
+```{r}
 # kvinner og menn
 wf_f_bef %>%
   ggplot() +
@@ -235,7 +247,7 @@ wf_r <- wf_f_bef %>%
 
 Plot nå for regionene wf_KM_r/bef_KM_r, både vha. geom_line() og geom_smooth(). La farge vise regionene. Sett denne i ggplot() slik at det gjelder for både geom_line() og geom_smooth(). Sett i tillegg alpha = 0.5 for geom_line() og se = FALSE for geom_smooth(). Legg til theme(legend.position = "bottom") til slutt for å få legend under plottet.
 
-```{r, echo=FALSE}
+```{r}
 # kvinner og menn
 wf_r %>% 
   ggplot(wf_r, mapping = aes(x = dato, 
@@ -249,7 +261,7 @@ wf_r %>%
 
 Lag tilsvarende plot for kvinner.
 
-```{r, echo=FALSE}
+```{r}
 # kvinner
 wf_r %>% 
   ggplot(wf_r, mapping = aes(x = dato, 
@@ -263,7 +275,7 @@ wf_r %>%
 
 Lag tilsvarende plot for menn
 
-```{r, echo=FALSE}
+```{r}
 # menn
 wf_r %>% 
   ggplot(wf_r, mapping = aes(x = dato, 
@@ -301,17 +313,18 @@ Vi har nå en tibble med data for hver kommune inne i tibble-en arblos_by_knr.
 
 Skriv en funksjon som kjører den lineære modellen wf_KM ~ alp_15_29 + alp_30_74 på en input dataframe a_df. Kall funksjonen mod1 (i magel på noe bedre navn).
 
-```{r, echo=FALSE}
+```{r}
 mod1 <- function(a_df){
   lm(wf_KM ~ alp_15_29 + alp_30_74, data = a_df)}
 ```
 KJøre så modellen vha. funksjonen mod1 på data i arblos_by_knr, og lag en list-column i arblos_by_knr som inneholder modellen. Kjør også tidy og glance fra broom på modellene for å få hhv. koeffisienter og ulike summary av modellen. Lagre resultatene i hhv. mod1_arblos, mod1_arblos_coef og mod1_arblos_sum (i siste er sum forkortelse for summary)
 
-```{r, echo=FALSE}
+```{r}
 arblos_by_knr <- arblos_by_knr %>% 
-  mutate(mod1_arblos = map(data, .f = mod1)) %>% 
-  mutate(mod1_arblos_coef = map(.x = mod1_arblos, .f = tidy)) %>% 
-  mutate(mod1_arblos_sum = map(.x = mod1_arblos, .f = glance)) 
+    mutate(mod1_arblos = map(data, .f = mod1)) %>%
+    mutate(mod1_arblos_coef = map(mod1_arblos, .f = tidy)) %>% 
+    mutate(mod1_arblos_sum = map(mod1_arblos, .f = glance))
+arblos_by_knr[arblos_by_knr$knr == "0441",][[3]]
 ```
 
 arblos_by_knr skal nå se ut slik:
@@ -344,7 +357,7 @@ head(kom_str)
 
 Bruk så unnest() til å pakke ut mod1_arblos_coef og mod1_arblos_coef (husk at de to må stå i en c() og ha anførselstegn). Plukk ut variablene knr, knavn, term, estimate, std.error, p.value...9, adj.r.squared og legg resultatet i mod_arbl_re.
 
-```{r, echo=FALSE}
+```{r}
 #modell arbeidsløse resultat
 mod_arbl_re <- arblos_by_knr %>% 
   unnest(c("mod1_arblos_coef", "mod1_arblos_sum"), names_repair = "universal") %>% 
@@ -388,7 +401,7 @@ kom_str_mod %>%
 
 Lag tilsvarende plot for alp_30_74.
 
-```{r, echo=FALSE}
+```{r}
 kom_str_mod %>% 
     filter(term == "alp_30_74") %>% 
     filter(estimate > -500 & estimate < 500 ) %>%

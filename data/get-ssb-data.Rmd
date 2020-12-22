@@ -8,7 +8,7 @@ output:
 ```{r setup}
 library(PxWebApiData)
 library(tidyverse)
-knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_chunk$set(eval = TRUE)
 ```
 
 ## Assignment 4; ssb data
@@ -33,7 +33,7 @@ length(kom_vec)
 
 Vi bruker perioden januar 1999 t.o.m. mai 2014. Perioden har relativt få kommunejusteringer og god tilgang på data. Lag en vektor `tid_vec` på formen "1999M01", "1999M02", "1999M03", ... "2014M04", "2014M05. Bruk c(), paste(), rep() og str_pad(). Husk at rep() har et each argument. Et tips er å lage opp til 2014M12 og så fjerne de siste 7 elementene.
 
-```{r, echo=FALSE}
+```{r}
 # combine med c(), rep() se argument each, str_pad()
 # til å lage 01, 02...11, 12
 tid_vec <- paste(rep(1999:2014, each = 12), "M", str_pad(1:12, width = 2, pad = "0"), sep = "")
@@ -83,6 +83,9 @@ df_arbl_p_alder <- data.frame(
     alp = arbl_p_alder[[2]]$value
 )
 dim(df_arbl_p_alder)
+head(df_arbl_p_alder)
+df_arbl_p_alder %>% 
+  filter(knr == "0441")
 ```
 
 ### Tabell 04471, arbeidsløse i %, per kommune, etter kjønn, månedlig 1991M01-2014M05
@@ -146,7 +149,7 @@ Antall rekker blir `418*16*106*2=1417856` som er mer enn maks grensen på 800k. 
 
 Bruk c() og str_pad() til å lage en `alder_klasse_vec` på formen "000", "001", "002" ... "104", "105+". Bruk denne som verdi for Alder i `ApiData()` kallet, dvs. `Alder = alder_klasse_vec`. Bruk hhv. Kjonn = "Kvinner" og Kjonn = "Menn" for å hente de respektive datasettene.
 
-```{r, echo=FALSE}
+```{r}
 alder_klasse_vec <- c(str_pad(0:104, width = 3, pad = "0"), "105+")
 ```
 
@@ -236,11 +239,19 @@ For kontroll.
 ```
 
 ```{r}
-write_csv(df_arbl_p_alder, path = "./ssb_df_arbl_p_alder.csv")
-write_csv(df_arbl_p_kjonn, path = "./ssb_df_arbl_p_kjonn.csv")
-write_csv(df_arbl, path = "./ssb_df_arbl.csv")
-write_csv(df_bef_K, path = "./ssb_df_bef_K.csv")
-write_csv(df_bef_M, path = "./ssb_df_bef_M.csv")
+# write_csv bruker file som argument, så file = "./ssb_df_arbl_p_alder.csv"
+# Noen funksjoner bruker path = , kokså forvirrende
+# write_csv(df_arbl_p_alder, path = "./ssb_df_arbl_p_alder.csv")
+# write_csv(df_arbl_p_kjonn, path = "./ssb_df_arbl_p_kjonn.csv")
+# write_csv(df_arbl, path = "./ssb_df_arbl.csv")
+# write_csv(df_bef_K, path = "./ssb_df_bef_K.csv")
+# write_csv(df_bef_M, path = "./ssb_df_bef_M.csv")
+
+write_csv(df_arbl_p_alder, file = "./ssb_df_arbl_p_alder.csv")
+write_csv(df_arbl_p_kjonn, file = "./ssb_df_arbl_p_kjonn.csv")
+write_csv(df_arbl, file = "./ssb_df_arbl.csv")
+write_csv(df_bef_K, file = "./ssb_df_bef_K.csv")
+write_csv(df_bef_M, file = "./ssb_df_bef_M.csv")
 ```
 
 ## Opprydding

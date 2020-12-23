@@ -1,0 +1,33 @@
+---
+title: "ag_comments"
+output: html_notebook
+---
+
+# Kommentarer
+
+1.  `get-ssb-data.Rmd()` ser fin ut. Den kjører etter at jeg har satt `knitr::opts_chunk$set(eval = TRUE)` som ønsket.
+
+2.  Bruk regexp for å fikse navnene, dvs.
+
+    ``` {.r}
+    arblos_aldersgrp$knavn <- str_remove(
+      string = arblos_aldersgrp$knavn,
+      pattern = "\\s*\\([-\\d]+\\)\\s*"
+      )
+    ```
+
+3.  Regexp ser kanskje skremmende ut, men er ikke så ille når en tar det steg for steg:
+
+    1.  \\\\s\*; null eller flere white-space
+
+    2.  opp til en parentes start; \\\\(
+
+    3.  så bindestrek eller tall én eller flere ganger; [-\\\\d]+
+
+    4.  opp til parentes slutt; \\\\),
+
+    5.  så til slutt null eller flere white-space; \\\\s\*
+
+4.  Når vi benytter `*_join()` funksjonene er det veldig viktig å sjekke nøye character vektorer vi benytter for join. Dere benyttet i `make-tidy-data.Rmd` `right_join()` uten å angi `by =` argumentet. Sammensmeltningen vil da bestå av match på de fire variablene knr, knavn, aar og mnd. For å få match må knavn være identisk like. Jeg hadde endret de fleste vha. my\_pat \<- "\\\\s\*\\\\([-\\\\d]+\\\\)\\\\s\*", men ikke for knavn i df\_arbl. Dette resulterte i en bug som var overraskende vanskelig å finne. Har derfor lagt inn kode for å sjekke at knavn er identiske (linjene 250-251 i make-data-tidy.Rmd) før vi utfører join. Dette er lurt å alltid gjøre før match vha en character variabel.
+
+5.  Etter jeg fikset bug-en, jeg selv hadde innført, kjørte alle dokumentene uten problemer. Flott innsats!

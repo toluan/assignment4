@@ -24,6 +24,12 @@ bef <- read_csv("data/bef9914MK.csv")
 ## Modeller med data fra *bef* (befolkning)
 
 ```{r}
+dim(arblos)
+dim(bef)
+```
+
+
+```{r}
 names(bef)
 ```
 
@@ -71,6 +77,8 @@ wf <- arblos %>%
         wf_M = sum(wf_M, na.rm = TRUE),
         wf_KM = wf_K + wf_M
     )
+dim(wf)
+wf
 ```
 
 ```{r}
@@ -96,29 +104,17 @@ names(bef)
 Legg befolkningsdata varaiablene bef_K, bef_M, bef_KM til wf. Husk at de må aggregeres for hele landet (group_by() og så summarise() før de «joines»). Bruk tilslutt mutate() make_date() for å lage en ny variabel år som er en date, dvs aar + month=1L + day=1L.
 
 ```{r}
-# wf_hjelp <- bef %>%
-#   group_by(aar) %>%
-#   summarise(bef_K = sum(bef_K),
-#             bef_M = sum(bef_M),
-#             bef_KM = sum(bef_KM))
-# wf <- left_join(wf, wf_hjelp) 
-# wf <- wf %>%
-#   select(aar, bef_K, bef_M, bef_KM, wf_K, wf_M, wf_KM) %>% 
-#   mutate(år = make_date(aar, month = 1L, day = 1L))
-# 
-# rm(wf_hjelp)
-wf <- bef %>% 
-select(aar, bef_K, bef_M, bef_KM) %>%
-        group_by(aar) %>%
-    summarise(
-        bef_K = sum(bef_K),
-        bef_M = sum(bef_M),
-        bef_KM = sum(bef_KM)
-    ) %>% 
-left_join(y = wf, by = c("aar")) %>% 
-    mutate(
-        år = make_date(year = aar, month = 1L, day = 1L)
-    )
+wf_hjelp <- bef %>%
+  group_by(aar) %>%
+  summarise(bef_K = sum(bef_K),
+            bef_M = sum(bef_M),
+            bef_KM = sum(bef_KM))
+wf <- left_join(wf, wf_hjelp)
+wf <- wf %>%
+  select(aar, bef_K, bef_M, bef_KM, wf_K, wf_M, wf_KM) %>%
+  mutate(år = make_date(aar, month = 1L, day = 1L))
+
+rm(wf_hjelp)
 ```
 
 Da skal du få

@@ -27,3 +27,7 @@ output: html_notebook
     4.  opp til parentes slutt; \\\\),
 
     5.  så til slutt null eller flere white-space; \\\\s\*
+
+4.  Når vi benytter `*_join()` funksjonene er det veldig viktig å sjekke nøye character vektorer vi benytter for join. Dere benyttet i `make-tidy-data.Rmd` `right_join()` uten å angi `by =` argumentet. Sammensmeltningen vil da bestå av match på de fire variablene knr, knavn, aar og mnd. For å få match må knavn være identisk like. Jeg hadde endret de fleste vha. my\_pat \<- "\\\\s\*\\\\([-\\\\d]+\\\\)\\\\s\*", men ikke for knavn i df\_arbl. Dette resulterte i en bug som var overraskende vanskelig å finne. Har derfor lagt inn kode for å sjekke at knavn er identiske (linjene 250-251 i make-data-tidy.Rmd) før vi utfører join. Dette er lurt å alltid gjøre før match vha en character variabel.
+
+5.  Etter jeg fikset bug-en, jeg selv hadde innført, kjørte alle dokumentene uten problemer. Flott innsats!

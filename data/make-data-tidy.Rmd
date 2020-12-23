@@ -199,15 +199,19 @@ Gjør som ovenfor.
 
 ```{r}
 # Fikse navn
+# df_arbl$knavn <- str_remove(
+#   string = df_arbl$knavn, 
+#   pattern = fixed(" (-2019)"))
+# df_arbl$knavn <- str_remove(
+#   string = df_arbl$knavn, 
+#   pattern = fixed(" (1992-2019)"))
+# df_arbl$knavn <- str_remove(
+#   string = df_arbl$knavn, 
+#   pattern = fixed(" (1994-2019)"))
+
 df_arbl$knavn <- str_remove(
   string = df_arbl$knavn, 
-  pattern = fixed(" (-2019)"))
-df_arbl$knavn <- str_remove(
-  string = df_arbl$knavn, 
-  pattern = fixed(" (1992-2019)"))
-df_arbl$knavn <- str_remove(
-  string = df_arbl$knavn, 
-  pattern = fixed(" (1994-2019)"))
+  pattern = my_pat)
 
 df_arbl <- separate(
   data = df_arbl, 
@@ -239,8 +243,15 @@ Før vi slår i sammen de tre tibble-ene vi har gjort «tidy» er det lurt å sj
 
 Tenk nøye gjennom hvilke variabler man skal «joine» på.
 
+Her lever dere farlig. Siden dere ikke angir `by` argumentet vil den matche på knr, knavn, aar og mnd. Dere er derfor avhengig av at navnet på kommunene er skrevet nøyaktig likt i filene dere merger. Dette kan veldig fort gå galt og feilen vil være vanskelig å finne. Jeg vil anbefale å matche på knr, aar og mnd. Dere vil da få to variabler knavn.x og knavn.y. Dere kan så sjekke om knavn.x er nøyaktig lik knavn.y. Er den det kan en av dem slettes og navnet på den gjenværende endres til knavn. Hvis ikke identisk lik bør dere velge hvilken variant av knavn dere ønsker, event. endre tidligere i dokumentet slik at navnene er like.
+
 ```{r}
+# check that we have the same knavn
+stopifnot(identical(df_arbl$knavn, df_arbl_p_kjonn$knavn))
+stopifnot(identical(df_arbl$knavn, arblos_aldersgrp$knavn))
+          
 # arbeidsløse 1999 til 2014 månedlige data
+# will match on knr, knavn, aar, mnd
 al9914m <- df_arbl %>% 
   right_join(df_arbl_p_kjonn) %>% 
   right_join(arblos_aldersgrp)
